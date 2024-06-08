@@ -1,5 +1,6 @@
 const express = require('express');
 require('dotenv').config();
+require('./db/db-config');
 const jwt = require('jsonwebtoken');
 const cookieParser = require("cookie-parser");
 const auth = require('./middleware/auth_middleware');
