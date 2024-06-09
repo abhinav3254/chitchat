@@ -1,16 +1,17 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const connectionParams = {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true
+
+const connectDB = async () => {
+    try {
+        const conn = await mongoose.connect(`mongodb://localhost:27017/chat`, {
+            useNewUrlParser: true,
+        });
+        console.log(`MongoDB Connected: {conn.connection.host}`);
+    } catch (error) {
+        console.error(error.message);
+        process.exit(1);
+    }
 }
 
-mongoose.connect(process.env.DB_URL, connectionParams)
-    .then(() => {
-        console.log('Connected to database ')
-    })
-    .catch((err) => {
-        console.error(`Error connecting to the database. \n${err}`);
-    });
+module.exports = connectDB;
