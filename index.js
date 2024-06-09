@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require("cookie-parser");
 const auth = require('./middleware/auth_middleware');
 const userModel = require('./schema/UsersSchema');
+const { WebSocketServer } = require('ws');
 
 const app = express();
 app.use(express.json());
@@ -84,8 +85,27 @@ app.get('/logout', auth, (req, res) => {
 });
 
 
+
 const port = process.env.PORT || 3001;
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`server up and listening on port number ${port}`);
 })
+
+/**
+ * Web socket start here
+ */
+
+const ws = new WebSocketServer({ server });
+
+// maintaining all active connections in this object
+const clients = {};
+var i = 1;
+
+ws.on('connection', function (connection) {
+    const userId = i + 1;
+    console.log(`Received a new connection.`);
+    // Store the new connection and handle messages
+    clients[userId] = connection;
+    console.log(`${userId} connected.`);
+});
