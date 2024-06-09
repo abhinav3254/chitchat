@@ -7,6 +7,8 @@ import Home from './components/Home/Home';
 const App = () => {
 
   axios.defaults.baseURL = 'http://localhost:4000';
+  axios.defaults.headers.common['Content-Type'] = 'application/json';
+  axios.defaults.withCredentials = true;
 
   return (
     <div>
