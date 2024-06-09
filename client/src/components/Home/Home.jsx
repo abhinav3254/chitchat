@@ -1,5 +1,6 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
+import Contact from '../Contact/Contact';
 
 const Home = () => {
 
@@ -37,7 +38,7 @@ const Home = () => {
                 <h1>Online Users</h1>
                 <ul>
                     {onlineUsers.map(user => (
-                        <li key={user.userId}>{user.email}</li>
+                        <Contact email={user.email} userId={user.userId} key={user.userId} />
                     ))}
                 </ul>
             </div>
