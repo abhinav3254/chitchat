@@ -4,7 +4,13 @@ import React from 'react'
 const Home = () => {
 
     const check = async () => {
-        const res = await axios.get();
+        // const config = {
+        //     headers: {
+        //         "Content-Type": "application/json"
+        //     },
+        //     withCredentials: true
+        // }
+        const res = await axios.get('');
         console.log(res);
     }
 
