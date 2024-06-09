@@ -7,7 +7,10 @@ const Contact = ({ userId, email }) => {
         <div className='contact'>
             <div className="contact-card">
                 <img className='avtar' src={avtar} alt="" />
-                <p>{email}</p>
+                <div className='others'>
+                    <p>{email}</p>
+                    <span>{userId}</span>
+                </div>
             </div>
         </div>
     )
