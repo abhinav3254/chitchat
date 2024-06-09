@@ -64,6 +64,7 @@ app.post('/login', async (req, res) => {
 // Register route
 app.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
+    console.log({ name, email, password });
     try {
         const alreadyUser = await userModel.findOne({ email });
         if (alreadyUser) return res.status(400).json({ message: 'Email already in use' });
@@ -93,9 +94,55 @@ const ws = new WebSocketServer({ server });
 // Maintain active connections
 const clients = {};
 
-ws.on('connection', (connection) => {
-    const userId = ++i;
+let i = 0;
+
+ws.on('connection', (connection, req) => {
+    const uid = ++i;
     console.log(`Received a new connection.`);
-    clients[userId] = connection;
-    console.log(`${userId} connected.`);
+    clients[uid] = connection;
+    console.log(`${uid} connected.`);
+
+
+    // only letting unique users to connect
+    const onlineUsers = new Map();
+
+    function notifyAboutOnlinePeople() {
+        // Iterate over each connected client
+        ws.clients.forEach(client => {
+            if (client.userId && client.email) {
+                // Add or update the client's userId and email in the onlineUsers map
+                onlineUsers.set(client.userId, { userId: client.userId, email: client.email });
+            }
+        });
+
+        // Prepare the message to be sent to all clients
+        const message = JSON.stringify({ online: Array.from(onlineUsers.values()) });
+
+        // Send the online users list to each connected client
+        ws.clients.forEach(client => {
+            client.send(message);
+        });
+    }
+
+
+
+    // getting the user details from the cookie
+    const cookies = req.headers.cookie;
+    if (cookies) {
+        const tokenCookieString = cookies.split(';').find(str => str.startsWith('token='));
+        if (tokenCookieString) {
+            const token = tokenCookieString.split('=')[1];
+            if (token) {
+                jwt.verify(token, process.env.JWT_SECRET, {}, (err, payload) => {
+                    if (err) { throw err }
+                    const { userId, email } = payload;
+                    connection.userId = userId;
+                    connection.email = email;
+                })
+            }
+        }
+    }
+
+    notifyAboutOnlinePeople();
+
 });
