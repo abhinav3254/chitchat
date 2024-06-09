@@ -3,6 +3,7 @@ require('dotenv').config();
 
 
 function verifyToken(req, res, next) {
+    console.log(req.cookies.token);
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ message: 'Access denied' });
     try {
