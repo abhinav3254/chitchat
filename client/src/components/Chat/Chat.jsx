@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Chat.css'
 
-const Chat = ({ sendMessageToHome }) => {
+const Chat = ({ sendMessageToHome, messageHistory }) => {
 
     const [message, setMessage] = useState('');
 
@@ -13,7 +13,12 @@ const Chat = ({ sendMessageToHome }) => {
     return (
         <div className='chat'>
             <div className="messages-area">
-
+                {messageHistory.map((data, key) => (
+                    <div key={key}>
+                        <strong>{data.sender}:</strong> {data.message} <br />
+                        <em>to {data.to}</em>
+                    </div>
+                ))}
             </div>
             <div className="input-area">
                 <input className='message-input' type="text" placeholder='messages' value={message} onChange={(e) => { setMessage(e.target.value) }} />

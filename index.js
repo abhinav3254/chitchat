@@ -78,6 +78,36 @@ app.post('/register', async (req, res) => {
     }
 });
 
+
+// chat history
+app.get('/history/:id', auth, async (req, res) => {
+    const id = req.params['id'];
+    const ourDetails = await getUserDataFromRequest(req);
+    ourId = ourDetails.userId;
+    const data = await messageModel.find({
+        sender: { $in: [id, ourId] },
+        to: { $in: [id, ourId] },
+    }).sort({ createdAt: 1 });
+    return res.json({ message: data });
+});
+
+async function getUserDataFromRequest(req) {
+    return new Promise((resolve, reject) => {
+        const token = req.cookies?.token;
+        if (token) {
+            let jwtSecret = process.env.JWT_SECRET;
+            jwt.verify(token, jwtSecret, {}, (err, userData) => {
+                if (err) throw err;
+                const { id, email } = userData;
+                resolve(userData);
+            });
+        } else {
+            reject('no token');
+        }
+    });
+}
+
+
 // Logout route
 app.get('/logout', auth, (req, res) => {
     return res.clearCookie('token').status(200).json({ message: "Successfully logged out" });

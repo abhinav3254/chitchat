@@ -6,6 +6,7 @@
 
 .messages-area {
     height: 92vh;
+    overflow: scroll;
 }
 
 .input-area {

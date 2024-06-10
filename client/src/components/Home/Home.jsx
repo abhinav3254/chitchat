@@ -75,6 +75,13 @@ const Home = () => {
     const selectedUserId = (data) => {
         setSelectedUser(data);
         console.log(data);
+        getChatHistory(data);
+    }
+
+    const getChatHistory = async (id) => {
+        const res = await axios.get(`/history/${id}`);
+        console.log(res.data.message);
+        setAllMessages(prevMessages => [...prevMessages, ...res.data.message]);
     }
 
     return (
@@ -85,7 +92,7 @@ const Home = () => {
                 ))}
             </div>
             <div className="chat">
-                <Chat sendMessageToHome={handleChildMessage} />
+                <Chat messageHistory={allMessages} sendMessageToHome={handleChildMessage} />
             </div>
         </div>
     )
