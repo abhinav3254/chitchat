@@ -9,6 +9,8 @@ const Home = () => {
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [message, setMessage] = useState('');
 
+    const [selectUser, setSelectedUser] = useState('');
+
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:4000');
 
@@ -39,11 +41,15 @@ const Home = () => {
         setMessage(messageFromChild);
     }
 
+    const selectedUserId = (data) => {
+        setSelectedUser(data);
+    }
+
     return (
         <div className='home'>
             <div className="contact-left">
                 {onlineUsers.map(user => (
-                    <Contact email={user.email} userId={user.userId} key={user.userId} />
+                    <Contact email={user.email} userId={user.userId} key={user.userId} sendUserIdToHome={selectedUserId} />
                 ))}
             </div>
             <div className="chat">
