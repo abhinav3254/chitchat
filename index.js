@@ -143,6 +143,12 @@ ws.on('connection', (connection, req) => {
         }
     }
 
+    connection.on('message', async (message) => {
+        const messageData = JSON.parse(message.toString());
+        const { to, message } = messageData;
+        console.log(messageData);
+    });
+
     notifyAboutOnlinePeople();
 
 });

@@ -8,16 +8,19 @@ const Home = () => {
 
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [message, setMessage] = useState('');
+    const [ws, setWs] = useState(null);
 
     const [selectUser, setSelectedUser] = useState('');
 
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:4000');
+        setWs(ws);
 
         ws.onopen = () => {
             console.log('connected');
         };
 
+        // here getting all the online users list
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             setOnlineUsers(data.online);
@@ -39,10 +42,21 @@ const Home = () => {
 
     const handleChildMessage = (messageFromChild) => {
         setMessage(messageFromChild);
+        sendMessageWebSocket(message);
+    }
+
+    const sendMessageWebSocket = (message) => {
+        const data = {
+            to: selectUser,
+            message: message
+        };
+
+        ws.send(JSON.stringify(data));
     }
 
     const selectedUserId = (data) => {
         setSelectedUser(data);
+        console.log(data);
     }
 
     return (
