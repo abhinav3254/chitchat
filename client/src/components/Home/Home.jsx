@@ -1,10 +1,13 @@
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
+import './Home.css';
 import Contact from '../Contact/Contact';
+import Chat from '../Chat/Chat';
 
 const Home = () => {
 
     const [onlineUsers, setOnlineUsers] = useState([]);
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         const ws = new WebSocket('ws://localhost:4000');
@@ -32,15 +35,19 @@ const Home = () => {
         };
     }, []);
 
+    const handleChildMessage = (messageFromChild) => {
+        setMessage(messageFromChild);
+    }
+
     return (
-        <div>
-            <div>
-                <h1>Online Users</h1>
-                <ul>
-                    {onlineUsers.map(user => (
-                        <Contact email={user.email} userId={user.userId} key={user.userId} />
-                    ))}
-                </ul>
+        <div className='home'>
+            <div className="contact-left">
+                {onlineUsers.map(user => (
+                    <Contact email={user.email} userId={user.userId} key={user.userId} />
+                ))}
+            </div>
+            <div className="chat">
+                <Chat sendMessageToHome={handleChildMessage} />
             </div>
         </div>
     )

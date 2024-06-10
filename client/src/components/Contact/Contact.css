@@ -1,5 +1,4 @@
 .contact {
-    width: 20%;
     padding: 2px 5px;
 }
 
@@ -10,6 +9,7 @@
     padding: 5px;
     border: 1px solid gainsboro;
     transition: all 0.2s;
+    background-color: white;
 }
 
 .contact-card:hover {

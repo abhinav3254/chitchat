@@ -1,0 +1,29 @@
+.chat {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages-area {
+    height: 92vh;
+}
+
+.input-area {
+    display: flex;
+    align-items: center;
+    padding: 5px 20px;
+}
+
+.message-input {
+    width: 100%;
+}
+
+.send-icon {
+    height: 30px;
+    width: 30px;
+    margin-left: 10px;
+}
+
+.send-icon:hover {
+    cursor: pointer;
+}

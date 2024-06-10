@@ -1,0 +1,8 @@
+.home {
+    display: flex;
+}
+
+.contact-left {
+    width: 30%;
+    background-color: #F6F5F2;
+}
