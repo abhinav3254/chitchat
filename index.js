@@ -8,6 +8,7 @@ const userModel = require('./schema/UsersSchema');
 const { WebSocketServer } = require('ws');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const messageModel = require('./schema/ChatSchema');
 
 const app = express();
 app.use(express.json());
@@ -82,6 +83,7 @@ app.get('/logout', auth, (req, res) => {
     return res.clearCookie('token').status(200).json({ message: "Successfully logged out" });
 });
 
+
 // Server setup
 const port = process.env.PORT || 3001;
 const server = app.listen(port, () => {
@@ -91,8 +93,9 @@ const server = app.listen(port, () => {
 // WebSocket setup
 const ws = new WebSocketServer({ server });
 
-// Maintain active connections
+// Maintain active connections and online users
 const clients = {};
+const onlineUsers = new Map();
 
 let i = 0;
 
@@ -102,53 +105,73 @@ ws.on('connection', (connection, req) => {
     clients[uid] = connection;
     console.log(`${uid} connected.`);
 
-
-    // only letting unique users to connect
-    const onlineUsers = new Map();
-
+    // Function to notify all clients about the online users
     function notifyAboutOnlinePeople() {
-        // Iterate over each connected client
-        ws.clients.forEach(client => {
-            if (client.userId && client.email) {
-                // Add or update the client's userId and email in the onlineUsers map
-                onlineUsers.set(client.userId, { userId: client.userId, email: client.email });
-            }
-        });
-
-        // Prepare the message to be sent to all clients
         const message = JSON.stringify({ online: Array.from(onlineUsers.values()) });
 
-        // Send the online users list to each connected client
         ws.clients.forEach(client => {
             client.send(message);
         });
     }
 
-
-
-    // getting the user details from the cookie
+    // Extract user details from cookies
     const cookies = req.headers.cookie;
     if (cookies) {
-        const tokenCookieString = cookies.split(';').find(str => str.startsWith('token='));
+        const tokenCookieString = cookies.split(';').find(str => str.trim().startsWith('token='));
         if (tokenCookieString) {
             const token = tokenCookieString.split('=')[1];
             if (token) {
                 jwt.verify(token, process.env.JWT_SECRET, {}, (err, payload) => {
-                    if (err) { throw err }
+                    if (err) {
+                        console.error('JWT verification error:', err);
+                        return;
+                    }
                     const { userId, email } = payload;
                     connection.userId = userId;
                     connection.email = email;
-                })
+
+                    // Add the user to the online users map
+                    onlineUsers.set(userId, { userId, email });
+                    notifyAboutOnlinePeople();
+                });
             }
         }
     }
 
-    connection.on('message', async (message) => {
-        const messageData = JSON.parse(message.toString());
+    // Handle incoming messages
+    connection.on('message', async (res) => {
+        const messageData = JSON.parse(res.toString());
         const { to, message } = messageData;
-        console.log(messageData);
+
+        const messageSaved = await messageModel.create({ sender: connection.userId, to, message });
+
+        // Broadcasting the message to the specific user
+        const recipientConnection = Array.from(ws.clients).find(client => client.userId === to);
+        if (recipientConnection) {
+            const messageObject = {
+                message,
+                sender: connection.userId,
+                to,
+                _id: messageSaved._id
+            };
+            recipientConnection.send(JSON.stringify(messageObject));
+            console.log('Message sent:', JSON.stringify(messageObject));
+        } else {
+            console.log(`User with userId ${to} is not online.`);
+        }
     });
 
-    notifyAboutOnlinePeople();
+    connection.on('close', () => {
+        // Remove user from the online users map when they disconnect
+        if (connection.userId) {
+            onlineUsers.delete(connection.userId);
+            notifyAboutOnlinePeople();
+        }
+        console.log(`${uid} disconnected.`);
+        delete clients[uid];
+    });
 
+    connection.on('error', (err) => {
+        console.error('WebSocket error:', err);
+    });
 });

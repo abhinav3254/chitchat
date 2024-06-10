@@ -10,6 +10,8 @@ const Home = () => {
     const [message, setMessage] = useState('');
     const [ws, setWs] = useState(null);
 
+    const [allMessages, setAllMessages] = useState([]);
+
     const [selectUser, setSelectedUser] = useState('');
 
     useEffect(() => {
@@ -22,9 +24,25 @@ const Home = () => {
 
         // here getting all the online users list
         ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            setOnlineUsers(data.online);
+            try {
+                const data = JSON.parse(event.data);
+                console.log('Incoming message:', data);
+
+                if (data.online) {
+                    // Handle online users update
+                    setOnlineUsers(data.online);
+                } else if (data.message && data.sender && data.to && data._id) {
+                    // Handle incoming chat message
+                    console.log('Incoming chat message:', data);
+                    setAllMessages(prevMessages => [...prevMessages, data]);
+                } else {
+                    console.log('Unknown message type:', data);
+                }
+            } catch (error) {
+                console.error('Error parsing message:', error);
+            }
         };
+
 
         ws.onclose = () => {
             console.log('disconnected');
@@ -42,13 +60,13 @@ const Home = () => {
 
     const handleChildMessage = (messageFromChild) => {
         setMessage(messageFromChild);
-        sendMessageWebSocket(message);
+        sendMessageWebSocket(messageFromChild);
     }
 
-    const sendMessageWebSocket = (message) => {
+    const sendMessageWebSocket = (message1) => {
         const data = {
             to: selectUser,
-            message: message
+            message: message1
         };
 
         ws.send(JSON.stringify(data));
