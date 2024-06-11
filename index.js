@@ -108,6 +108,16 @@ async function getUserDataFromRequest(req) {
 }
 
 
+app.get('/user/:id', auth, async (req, res) => {
+    const userid = req.params['id'];
+    if (userid) {
+        const user = await userModel.findById(userid);
+        if (user) return res.status(200).json({ data: user });
+        else return res.status(404).json({ message: 'user not found' });
+    } return res.status(400).json({ message: 'user id not found in path variable' });
+});
+
+
 // Logout route
 app.get('/logout', auth, (req, res) => {
     return res.clearCookie('token').status(200).json({ message: "Successfully logged out" });

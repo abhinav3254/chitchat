@@ -1,13 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Chat.css'
+import axios from 'axios';
 
 const Chat = ({ sendMessageToHome, messageHistory, selectedUser }) => {
 
     const [message, setMessage] = useState('');
 
+    const [userDetails, setUserDetails] = useState('');
+
     const sendMessage = () => {
         sendMessageToHome(message)
         setMessage('');
+    }
+
+    useEffect(() => {
+        getUserDetails();
+    }, [selectedUser]);
+
+    const getUserDetails = async () => {
+        if (selectedUser) {
+            const res = await axios.get(`/user/${selectedUser}`);
+            console.log(res.data);
+            setUserDetails(res.data);
+        }
     }
 
     return (
@@ -15,7 +30,11 @@ const Chat = ({ sendMessageToHome, messageHistory, selectedUser }) => {
             {selectedUser && (
                 <div className='chat'>
                     <div className="header">
-                        <p>selected user :- {selectedUser} abhinav</p>
+                        {userDetails ? (
+                            <p>name :- {userDetails.data.name}</p>
+                        ) : (
+                            <p>Loading user details...</p>
+                        )}
                     </div>
                     <div className="messages-area">
                         {messageHistory.map((data, key) => (

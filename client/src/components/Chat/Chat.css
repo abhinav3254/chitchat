@@ -4,8 +4,12 @@
     flex-direction: column;
 }
 
+.header {
+    height: 50px;
+}
+
 .messages-area {
-    height: 92vh;
+    height: 80vh;
     overflow: scroll;
 }
 
