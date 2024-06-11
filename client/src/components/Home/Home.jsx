@@ -68,7 +68,7 @@ const Home = () => {
             to: selectUser,
             message: message1
         };
-
+        setAllMessages(prevMessages => [...prevMessages, data]);
         ws.send(JSON.stringify(data));
     }
 
@@ -92,7 +92,7 @@ const Home = () => {
                 ))}
             </div>
             <div className="chat">
-                <Chat messageHistory={allMessages} sendMessageToHome={handleChildMessage} />
+                <Chat messageHistory={allMessages} sendMessageToHome={handleChildMessage} selectedUser={selectUser} />
             </div>
         </div>
     )

@@ -28,3 +28,32 @@
 .send-icon:hover {
     cursor: pointer;
 }
+
+
+.left {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.right {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
+.my-message {
+    border: 1px solid green;
+    background-color: green;
+    margin: 5px;
+    width: fit-content;
+    max-width: 50%;
+}
+
+.other-user-message {
+    border: 1px solid gainsboro;
+    background-color: gainsboro;
+    margin: 5px;
+    width: fit-content;
+    max-width: 50%;
+}
